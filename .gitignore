@@ -2,3 +2,5 @@
 *.bin
 .vscode/arduino.json
 .vscode/c_cpp_properties.json
+.vscode/ipch/825ebb4305623cf6/WIRING_DIGITAL.ipch
+*.ipch

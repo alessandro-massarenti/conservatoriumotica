@@ -1,24 +1,48 @@
-int l = 0;  //Current level of the tank
-int M = 80; //Maximum level of the tank
-int m = 20; //Minimum level of the tank
+// Tank life parameters
+int M = 80; //Maximum water level of the tank
+int m = 20; //Minimum water level of the tank
+int l = 0;  //Current water level of the tank
 
-int euv = 2; //Emergency unload valve control pin
-int lv = 3;  //load valve control pin
-int uv = 4;  //Watering unload valve
+// Greenhouse life parameters
+int h = 0; //Current humidity level in greenhouse
 
+// Valve control pins
+int EU_valve = 2; //Emergency unload valve control pin
+int L_valve = 3;  //load valve control pin
+int U_valve = 4;  //Watering unload valve
+
+// Sensor pins
+int TL_sensor = A0;
+int H_sensor = A1;
+
+// Auxiliary
+int l1;
+int h1;
 bool watering = false;
 
 void setup()
 {
     // setup
-    pinMode(euv, OUTPUT);
-    pinMode(lv, OUTPUT);
+    pinMode(EU_valve, OUTPUT);
+    pinMode(L_valve, OUTPUT);
 }
 
 void loop()
 {
-    // Main
-    (l > M) ? digitalWrite(euv, HIGH) : digitalWrite(euv, LOW);
-    (l < m) ? digitalWrite(lv, HIGH) : digitalWrite(lv, LOW);
-    watering ? digitalWrite(uv, HIGH) : digitalWrite(uv, LOW);
+    //Tank
+    l = analogRead(TL_sensor);
+    if (l != l1)
+    {
+        (l > M) ? digitalWrite(EU_valve, HIGH) : digitalWrite(EU_valve, LOW);
+        (l < m) ? digitalWrite(L_valve, HIGH) : digitalWrite(L_valve, LOW);
+    }
+    l1 = l;
+
+    h = analogRead(H_sensor);
+    if (h != h1)
+    {
+        
+    }
+
+    watering ? digitalWrite(U_valve, HIGH) : digitalWrite(U_valve, LOW);
 }
