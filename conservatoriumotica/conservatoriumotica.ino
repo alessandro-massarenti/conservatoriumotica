@@ -6,7 +6,7 @@ float Rref = 47000;  // Reference resistor's value in ohms (you can give this va
 float R = 0;
 
 // Tank life parameters
-int M = 80; //Maximum water level of the tank
+int M = 87; //Maximum water level of the tank
 int m = 20; //Minimum water level of the tank
 int l = 0;  //Current water level of the tank
 int x = 60; // Median level
@@ -37,6 +37,9 @@ void setup()
     pinMode(EU_valve, OUTPUT);
     pinMode(L_valve, OUTPUT);
     pinMode(U_valve, OUTPUT);
+    digitalWrite(EU_valve, HIGH);
+    digitalWrite(L_valve, HIGH);
+    digitalWrite(U_valve, HIGH);
 }
 
 void loop()
@@ -51,19 +54,19 @@ void loop()
     {
         if (!L_apri && l < m)
             L_apri = true;
-        if (L_apri && l > x)
+        if (L_apri && l > 40)
             L_apri = false;
         L_apri ? digitalWrite(L_valve, LOW) : digitalWrite(L_valve, HIGH);
 
-        if (!EU_apri && l < m)
+        if (!EU_apri && l > M)
             EU_apri = true;
-        if (EU_apri && l > x)
-            EUapri = false;
+        if (EU_apri && l < 70)
+            EU_apri = false;
         EU_apri ? digitalWrite(EU_valve, LOW) : digitalWrite(EU_valve, HIGH);
     }
     l1 = l;
 
-    if ((time_now - t1) >= 10000)
+    if ((time_now - t1) >= 600000)
     {
         unsigned long time = millis();
         sensorValue = analogRead(humidity);  // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
@@ -73,10 +76,10 @@ void loop()
         Serial.println(R); // Give calculated resistance in Serial Monitor
         if (R > 50000)
         {
-            digitalWrite(2, LOW);
+            digitalWrite(U_valve, LOW);
             delay(1500);
         }
-        digitalWrite(2, HIGH);
+        digitalWrite(U_valve, HIGH);
         t1 = millis();
     }
     delay(1);
