@@ -8,8 +8,9 @@ float R = 0;
 // Tank life parameters
 int M = 87; //Maximum water level of the tank
 int m = 20; //Minimum water level of the tank
-int l = 0;  //Current water level of the tank
-int x = 60; // Median level
+int l = 50;  //Current water level of the tank
+int x = 40; // Median minimum level
+int z = 70; // Median maximum level
 
 // Greenhouse life parameters
 int h = 0; //Current humidity level in greenhouse
@@ -25,8 +26,8 @@ const int humidity = A0; // Analog input pin that senses Vout
 
 // Auxiliary
 int l1;
-bool L_apri = true;
-bool EU_apri = true;
+bool L_apri = false;
+bool EU_apri = false;
 int h1;
 unsigned long t1 = 0;
 
@@ -54,13 +55,13 @@ void loop()
     {
         if (!L_apri && l < m)
             L_apri = true;
-        if (L_apri && l > 40)
+        if (L_apri && l > x)
             L_apri = false;
         L_apri ? digitalWrite(L_valve, LOW) : digitalWrite(L_valve, HIGH);
 
         if (!EU_apri && l > M)
             EU_apri = true;
-        if (EU_apri && l < 70)
+        if (EU_apri && l < z)
             EU_apri = false;
         EU_apri ? digitalWrite(EU_valve, LOW) : digitalWrite(EU_valve, HIGH);
     }
