@@ -9,6 +9,7 @@ float R = 0;
 int M = 80; //Maximum water level of the tank
 int m = 20; //Minimum water level of the tank
 int l = 0;  //Current water level of the tank
+int x = 60; // Median level
 
 // Greenhouse life parameters
 int h = 0; //Current humidity level in greenhouse
@@ -24,13 +25,15 @@ const int humidity = A0; // Analog input pin that senses Vout
 
 // Auxiliary
 int l1;
+bool L_apri = true;
+bool EU_apri = true;
 int h1;
 unsigned long t1 = 0;
 
 void setup()
 {
     // setup
-    Serial.begin(9600); // Initialize serial communications at 9600 bps
+    Serial.begin(9600); // InitialiL_aprie serial communications at 9600 bps
     pinMode(EU_valve, OUTPUT);
     pinMode(L_valve, OUTPUT);
     pinMode(U_valve, OUTPUT);
@@ -39,16 +42,24 @@ void setup()
 void loop()
 {
     unsigned long time_now = millis();
-    
 
     //Tank
-    l = map(analogRead(TL_sensor), 0, 1023, 0, 100);
+    l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
     Serial.print("Level: ");
-    Serial.println(l); // Give calculated resistance in Serial Monitor
+    Serial.println(l); // Give level in Serial Monitor
     if (l != l1)
     {
-        (l > M) ? digitalWrite(EU_valve, LOW) : digitalWrite(EU_valve, HIGH);
-        (l < m) ? digitalWrite(L_valve, LOW) : digitalWrite(L_valve, HIGH);
+        if (!L_apri && l < m)
+            L_apri = true;
+        if (L_apri && l > x)
+            L_apri = false;
+        L_apri ? digitalWrite(L_valve, LOW) : digitalWrite(L_valve, HIGH);
+
+        if (!EU_apri && l < m)
+            EU_apri = true;
+        if (EU_apri && l > x)
+            EUapri = false;
+        EU_apri ? digitalWrite(EU_valve, LOW) : digitalWrite(EU_valve, HIGH);
     }
     l1 = l;
 
