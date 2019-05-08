@@ -53,13 +53,13 @@ void loop()
     Serial.println(l); // Give level in Serial Monitor
     if (l != l1)
     {
-        if (!L_apri && l < m)
+        if (!L_apri && l <= m)
             L_apri = true;
         if (L_apri && l > x)
             L_apri = false;
         L_apri ? digitalWrite(L_valve, LOW) : digitalWrite(L_valve, HIGH);
 
-        if (!EU_apri && l > M)
+        if (!EU_apri && l >= M)
             EU_apri = true;
         if (EU_apri && l < z)
             EU_apri = false;
@@ -67,9 +67,8 @@ void loop()
     }
     l1 = l;
 
-    if ((time_now - t1) >= 600000)
+    if ((time_now - t1) >= 20000)
     {
-        unsigned long time = millis();
         sensorValue = analogRead(humidity);  // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
         Vout = (Vin * sensorValue) / 1023;   // Convert Vout to volts
         R = Rref * (1 / ((Vin / Vout) - 1)); // Formula to calculate tested resistor's value
@@ -83,5 +82,6 @@ void loop()
         digitalWrite(U_valve, HIGH);
         t1 = millis();
     }
+    
     delay(1);
 }
