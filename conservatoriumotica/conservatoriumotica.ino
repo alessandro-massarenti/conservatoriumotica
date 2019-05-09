@@ -19,6 +19,42 @@ void setup()
     digitalWrite(U_valve, HIGH);
 }
 
+void Tankroutine()
+{
+
+    // Tank life parameters
+    int M = 87; //Maximum water level of the tank
+    int m = 20; //Minimum water level of the tank
+    int l;      //Current water level of the tank
+    int x = 40; // Median minimum level
+    int z = 70; // Median maximum level
+
+    // Auxiliary
+    bool L_apri = false;
+    bool EU_apri = false;
+    int l1;
+
+    //Tank
+    l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
+    Serial.print("Level: ");
+    Serial.println(l); // Give level in Serial Monitor
+    if (l != l1)
+    {
+        if (!L_apri && l <= m)
+            L_apri = true;
+        if (L_apri && l > x)
+            L_apri = false;
+        L_apri ? digitalWrite(L_valve, LOW) : digitalWrite(L_valve, HIGH);
+
+        if (!EU_apri && l >= M)
+            EU_apri = true;
+        if (EU_apri && l < z)
+            EU_apri = false;
+        EU_apri ? digitalWrite(EU_valve, LOW) : digitalWrite(EU_valve, HIGH);
+    }
+    l1 = l;
+}
+
 int main()
 {
     int sensorValue = 0; // humidity default value
@@ -29,48 +65,18 @@ int main()
 
     // Greenhouse life parameters
     int h = 0; //Current humidity level in greenhouse
-
-    // Tank life parameters
-    int M = 87; //Maximum water level of the tank
-    int m = 20; //Minimum water level of the tank
-    int l;      //Current water level of the tank
-    int x = 40; // Median minimum level
-    int z = 70; // Median maximum level
-
-    // Auxiliary
-    int l1;
-    bool L_apri = false;
-    bool EU_apri = false;
     int h1;
     unsigned long t1 = 0;
-    bool low_water = false;
+    bool low_moisture = false;
 
     while (true)
     {
-        unsigned long time_now = millis();
+        unsigned long timestamp = millis();
 
-        //Tank
-        l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
-        Serial.print("Level: ");
-        Serial.println(l); // Give level in Serial Monitor
-        if (l != l1)
-        {
-            if (!L_apri && l <= m)
-                L_apri = true;
-            if (L_apri && l > x)
-                L_apri = false;
-            L_apri ? digitalWrite(L_valve, LOW) : digitalWrite(L_valve, HIGH);
-
-            if (!EU_apri && l >= M)
-                EU_apri = true;
-            if (EU_apri && l < z)
-                EU_apri = false;
-            EU_apri ? digitalWrite(EU_valve, LOW) : digitalWrite(EU_valve, HIGH);
-        }
-        l1 = l;
+        Tankroutine();
 
         //Moisture reading.
-        if ((time_now - t1) >= 20000)
+        if ((timestamp - t1) >= 20000)
         {
             sensorValue = analogRead(humidity);  // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
             Vout = (Vin * sensorValue) / 1023;   // Convert Vout to volts
@@ -78,10 +84,10 @@ int main()
             Serial.print("R: ");
             Serial.println(R); // Give calculated resistance in Serial Monitor
             if (R > 50000)
-                low_water = true;
+                low_moisture = true;
             t1 = millis();
         }
-        if (low_water)
+        if (low_moisture)
         {
             digitalWrite(U_valve, LOW);
             digitalWrite(U_valve, HIGH);
