@@ -62,7 +62,7 @@ int rollingAvg(int input)
     return somma / i;
 }
 
-void Tankroutine()
+void Tankroutine(bool &L_apri, bool &EU_apri)
 {
 
     // Tank life parameters
@@ -72,14 +72,12 @@ void Tankroutine()
     int x = 40; // Median minimum level
     int z = 70; // Median maximum level
 
-    // Auxiliary
-    bool L_apri = false;
-    bool EU_apri = false;
+    //Auxiliary variables
     int l1;
 
     //Tank
     l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
-    l = rollingAvg(l);
+    //l = rollingAvg(l);
     Serial.print("Level: ");
     Serial.println(l); // Give level in Serial Monitor
     if (l != l1)
@@ -99,7 +97,7 @@ void Tankroutine()
     l1 = l;
 }
 
-int main()
+void loop()
 {
     int sensorValue = 0; // humidity default value
     float Vin = 5;       // Input voltage
@@ -113,17 +111,21 @@ int main()
     unsigned long t1 = 0;
     bool low_moisture = false;
 
+    // Auxiliary
+    bool L_apri = false;
+    bool EU_apri = false;
+
     while (true)
     {
         unsigned long timestamp = millis();
 
-        Tankroutine();
+        Tankroutine(L_apri, EU_apri);
 
         //Moisture reading.
-        if ((timestamp - t1) >= 20000)
+        if ((timestamp - t1) >= 2000)
         {
             sensorValue = analogRead(humidity); // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
-            sensorValue = rollingAvg(sensorValue);
+            //sensorValue = rollingAvg(sensorValue);
             Vout = (Vin * sensorValue) / 1023;   // Convert Vout to volts
             R = Rref * (1 / ((Vin / Vout) - 1)); // Formula to calculate tested resistor's value
             Serial.print("R: ");
@@ -135,13 +137,11 @@ int main()
         if (low_moisture)
         {
             digitalWrite(U_valve, LOW);
+            delay(1500);
             digitalWrite(U_valve, HIGH);
+            low_moisture = false;
         }
         delay(1); // Clock
-        return 0;
     }
-}
-
-void loop()
-{
+    Serial.println("Done");
 }
