@@ -9,11 +9,11 @@ const int humidity = A0;  // Analog input pin that senses Vout
 
 struct nodo
 {
-    int data;
+    int info;
     nodo *next;
     nodo(int a = 0, nodo *b = 0)
     {
-        data = a;
+        info = a;
         next = b;
     }
 };
@@ -32,30 +32,29 @@ void setup()
 
 // Funzioni Ausiliarie
 nodo *avg_list; // Inizio lista della media se non fosse globale verrebbe resettata ogni volta
-void cancella_nodo(nodo *&a, int max, int i = 0)
+nodo *cancella_nodo(nodo *&a, int max, int i = 0)
 {
     if (a)
-        cancella_nodo(a->next, i + 1);
-    if (i > max)
-        delete a;
-    if (i == max - 1)
-        a->next = NULL;
+    {
+        cancella_nodo(a->next, max, i + 1);
+        if (i > max)
+            delete a;
+        if (i == max - 1)
+            a->next = NULL;
+    }
 }
-
 int rollingAvg(int input)
 {
-    if (avg_list)
+    if (!avg_list)
         avg_list = new nodo(input, 0);
     else
-    {
         avg_list = new nodo(input, avg_list);
-    }
     nodo *avg_scorri = avg_list;
     cancella_nodo(avg_list, 10);
     int i = 0, somma = 0;
-    while (!avg_scorri)
+    while (avg_scorri)
     {
-        somma = somma + avg_scorri->data;
+        somma = somma + avg_scorri->info;
         avg_scorri = avg_scorri->next;
         i++;
     }
