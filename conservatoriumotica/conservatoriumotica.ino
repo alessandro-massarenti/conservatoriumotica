@@ -62,12 +62,12 @@ int rollingAvg(int input)
 }
 
 /**
- * a tankRoutine
- * Tank life parameters
- * int M = 87; //Maximum water level of the tank
- * int z = 70; // Median maximum level
- * int x = 40; // Median minimum level
- * int m = 20; //Minimum water level of the tank 
+   a tankRoutine
+   Tank life parameters
+   int M = 87; //Maximum water level of the tank
+   int z = 70; // Median maximum level
+   int x = 40; // Median minimum level
+   int m = 20; //Minimum water level of the tank
 */
 void tankRoutine(bool &L_apri, bool &EU_apri, int M = 87, int z = 70, int x = 40, int m = 20)
 {
@@ -75,9 +75,9 @@ void tankRoutine(bool &L_apri, bool &EU_apri, int M = 87, int z = 70, int x = 40
     int l, l1; //Current water level of the tank
 
     //Tank
-    l = map(rollingAvg(analogRead(TL_sensor)), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
-    Serial.print("Level: ");
-    Serial.println(l); // Give level in Serial Monitor
+    l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
+    //Serial.print("Level: ");
+    //Serial.println(l); // Give level in Serial Monitor
     if (l != l1)
     {
         if (!L_apri && l <= m)
@@ -122,24 +122,21 @@ void loop()
         tankRoutine(L_apri, EU_apri);
 
         //Moisture reading.
-        if ((timestamp - t1) >= 2000)
+        if ((timestamp - t1) >= 10)
         {
-            sensorValue = rollingAvg(analogRead(humidity)); // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
-            Vout = (Vin * sensorValue) / 1023;           // Convert Vout to volts
-            R = Rref * (1 / ((Vin / Vout) - 1));         // Formula to calculate tested resistor's value
+            sensorValue = analogRead(humidity);  // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
+            Vout = (Vin * sensorValue) / 1023;   // Convert Vout to volts
+            R = Rref * (1 / ((Vin / Vout) - 1)); // Formula to calculate tested resistor's value
             Serial.print("R: ");
             Serial.println(R); // Give calculated resistance in Serial Monitor
-            if (R > 50000)
+            if (!low_moisture && R > 10000)
                 low_moisture = true;
+            if (low_moisture && R < 5000)
+                low_moisture = false;
+            low_moisture ? digitalWrite(U_valve, LOW) : digitalWrite(U_valve, HIGH);
             t1 = millis();
         }
-        if (low_moisture)
-        {
-            digitalWrite(U_valve, LOW);
-            delay(1500);
-            digitalWrite(U_valve, HIGH);
-            low_moisture = false;
-        }
+
         delay(1); // Clock
     }
     Serial.println("Qualcosa è andato storto, ora riavvio");
