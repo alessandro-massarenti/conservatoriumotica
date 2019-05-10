@@ -61,18 +61,18 @@ int rollingAvg(int input)
     return somma / i;
 }
 
-void Tankroutine(bool &L_apri, bool &EU_apri)
+/**
+ * a Tankroutine
+ * Tank life parameters
+ * int M = 87; //Maximum water level of the tank
+ * int z = 70; // Median maximum level
+ * int x = 40; // Median minimum level
+ * int m = 20; //Minimum water level of the tank 
+*/
+void Tankroutine(bool &L_apri, bool &EU_apri, int M = 87, int z = 70, int x = 40, int m = 20)
 {
 
-    // Tank life parameters
-    int M = 87; //Maximum water level of the tank
-    int m = 20; //Minimum water level of the tank
-    int l;      //Current water level of the tank
-    int x = 40; // Median minimum level
-    int z = 70; // Median maximum level
-
-    //Auxiliary variables
-    int l1;
+    int l,l1; //Current water level of the tank
 
     //Tank
     l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
@@ -95,6 +95,8 @@ void Tankroutine(bool &L_apri, bool &EU_apri)
     }
     l1 = l;
 }
+
+// Main function
 
 void loop()
 {
