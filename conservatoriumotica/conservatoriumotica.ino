@@ -62,14 +62,14 @@ int rollingAvg(int input)
 }
 
 /**
- * a Tankroutine
+ * a tankRoutine
  * Tank life parameters
  * int M = 87; //Maximum water level of the tank
  * int z = 70; // Median maximum level
  * int x = 40; // Median minimum level
  * int m = 20; //Minimum water level of the tank 
 */
-void Tankroutine(bool &L_apri, bool &EU_apri, int M = 87, int z = 70, int x = 40, int m = 20)
+void tankRoutine(bool &L_apri, bool &EU_apri, int M = 87, int z = 70, int x = 40, int m = 20)
 {
 
     int l, l1; //Current water level of the tank
@@ -119,7 +119,7 @@ void loop()
     {
         unsigned long timestamp = millis();
 
-        Tankroutine(L_apri, EU_apri);
+        tankRoutine(L_apri, EU_apri);
 
         //Moisture reading.
         if ((timestamp - t1) >= 2000)
