@@ -72,11 +72,10 @@ int rollingAvg(int input)
 void Tankroutine(bool &L_apri, bool &EU_apri, int M = 87, int z = 70, int x = 40, int m = 20)
 {
 
-    int l,l1; //Current water level of the tank
+    int l, l1; //Current water level of the tank
 
     //Tank
-    l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
-    //l = rollingAvg(l);
+    l = map(rollingAvg(analogRead(TL_sensor)), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
     Serial.print("Level: ");
     Serial.println(l); // Give level in Serial Monitor
     if (l != l1)
@@ -125,10 +124,9 @@ void loop()
         //Moisture reading.
         if ((timestamp - t1) >= 2000)
         {
-            sensorValue = analogRead(humidity); // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
-            //sensorValue = rollingAvg(sensorValue);
-            Vout = (Vin * sensorValue) / 1023;   // Convert Vout to volts
-            R = Rref * (1 / ((Vin / Vout) - 1)); // Formula to calculate tested resistor's value
+            sensorValue = rollingAvg(analogRead(humidity)); // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
+            Vout = (Vin * sensorValue) / 1023;           // Convert Vout to volts
+            R = Rref * (1 / ((Vin / Vout) - 1));         // Formula to calculate tested resistor's value
             Serial.print("R: ");
             Serial.println(R); // Give calculated resistance in Serial Monitor
             if (R > 50000)
@@ -144,5 +142,5 @@ void loop()
         }
         delay(1); // Clock
     }
-    Serial.println("Done");
+    Serial.println("Qualcosa è andato storto, ora riavvio");
 }
