@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 // Valve control pins
 const int EU_valve = 4; //Emergency unload valve control pin
 const int L_valve = 3;  //load valve control pin
@@ -8,6 +6,9 @@ const int U_valve = 2;  //Watering unload valve
 // Sensor pins
 const int TL_sensor = A1; //Tank level
 const int humidity = A0;  // Analog input pin that senses Vout
+
+int lst;
+int A[3];
 
 void setup()
 {
@@ -21,23 +22,32 @@ void setup()
   digitalWrite(U_valve, HIGH);
 }
 
-/**
-   a tankRoutine
-   Tank life parameters
-   int M = 87; //Maximum water level of the tank
-   int z = 70; // Median maximum level
-   int x = 40; // Median minimum level
-   int m = 20; //Minimum water level of the tank
-*/
-void tankRoutine(bool &L_apri, bool &EU_apri, int M = 87, int z = 70, int x = 40, int m = 20)
+int rollingAvg(int input)
 {
 
-  int l, l1; //Current water level of the tank
+  long long sum = 0;
 
-  //Tank
-  l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
-  //Serial.print("Level: ");
-  //Serial.println(l); // Give level in Serial Monitor
+  A[lst] = input;
+  for (int i = 0; i < 10; i++)
+    sum = sum + A[i];
+  lst++;
+  if (lst == 10)
+    lst = 0;
+  return sum;
+}
+
+/**
+  a tankRoutine
+  Tank life parameters
+  int M = 87; //Maximum water level of the tank
+  int z = 70; // Median maximum level
+  int x = 40; // Median minimum level
+  int m = 20; //Minimum water level of the tank
+*/
+void tankRoutine(bool &L_apri, bool &EU_apri, int &l1, int M = 87, int z = 70, int x = 40, int m = 20)
+{
+  int l = map(analogRead(TL_sensor), 0, 1023, 0, 100); //mappa i valori letti dal sensore legandoli a valori percentuali
+
   if (l != l1)
   {
     if (!L_apri && l <= m)
@@ -56,7 +66,6 @@ void tankRoutine(bool &L_apri, bool &EU_apri, int M = 87, int z = 70, int x = 40
 }
 
 // Main function
-
 void loop()
 {
   int sensorValue = 0; // humidity default value
@@ -74,21 +83,20 @@ void loop()
   // Auxiliary
   bool L_apri = false;
   bool EU_apri = false;
+  int l1 = 0;
 
   while (true)
   {
     unsigned long timestamp = millis();
 
-    tankRoutine(L_apri, EU_apri);
+    tankRoutine(L_apri, EU_apri, l1);
 
     //Moisture reading.
     if ((timestamp - t1) >= 10)
     {
-      sensorValue = analogRead(humidity); // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
-      Vout = (Vin * sensorValue) / 1023;              // Convert Vout to volts
-      R = Rref * (1 / ((Vin / Vout) - 1));            // Formula to calculate tested resistor's value
-      Serial.print("R: ");
-      Serial.println(R); // Give calculated resistance in Serial Monitor
+      sensorValue = rollingAvg(analogRead(humidity));  // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
+      Vout = (Vin * sensorValue) / 1023;   // Convert Vout to volts
+      R = Rref * (1 / ((Vin / Vout) - 1)); // Formula to calculate tested resistor's value
       if (!low_moisture && R > 10000)
         low_moisture = true;
       if (low_moisture && R < 5000)
@@ -96,8 +104,15 @@ void loop()
       low_moisture ? digitalWrite(U_valve, LOW) : digitalWrite(U_valve, HIGH);
       t1 = millis();
     }
-
-    delay(1); // Clock
+    Serial.print("Level: ");
+    Serial.print(l1); // Give level in Serial Monitor
+    Serial.print(" ");
+    Serial.print("light: ");
+    Serial.print(analogRead(2)); // Give level in Serial Monitor
+    Serial.print(" ");
+    Serial.print("R: ");
+    Serial.println(R); // Give calculated resistance in Serial Monitor
+    delay(1);          // Clock
   }
   Serial.println("Qualcosa è andato storto, ora riavvio");
 }
