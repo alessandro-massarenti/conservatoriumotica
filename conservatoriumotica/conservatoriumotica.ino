@@ -8,7 +8,7 @@ const int TL_sensor = A1; //Tank level
 const int humidity = A0;  // Analog input pin that senses Vout
 
 int lst;
-int A[3];
+int A[10];
 
 void setup()
 {
@@ -30,6 +30,7 @@ int rollingAvg(int input)
   A[lst] = input;
   for (int i = 0; i < 10; i++)
     sum = sum + A[i];
+  sum = sum / 10;
   lst++;
   if (lst == 10)
     lst = 0;
@@ -92,9 +93,9 @@ void loop()
     tankRoutine(L_apri, EU_apri, l1);
 
     //Moisture reading.
-    if ((timestamp - t1) >= 10)
+    if ((timestamp - t1) >= 100)
     {
-      sensorValue = rollingAvg(analogRead(humidity));  // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
+      sensorValue = rollingAvg(analogRead(humidity)); // Read Vout on analog input pin A0 (Arduino can sense from 0-1023, 1023 is 5V)
       Vout = (Vin * sensorValue) / 1023;   // Convert Vout to volts
       R = Rref * (1 / ((Vin / Vout) - 1)); // Formula to calculate tested resistor's value
       if (!low_moisture && R > 10000)
