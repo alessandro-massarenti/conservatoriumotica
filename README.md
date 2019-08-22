@@ -4,11 +4,11 @@ Gestisce in maniera autonoma i parametri vitali di una serra in maniera che l' u
 
 ## Features
 
-### In corso d'opera:
-- Controllo e management delle riserve d'acqua.
-
 ### Completate:
  - lettura temperatura ed umidità dell'aria
+
+### In corso d'opera:
+- Controllo e management delle riserve d'acqua.
 
 ## Aggiornamenti
 
