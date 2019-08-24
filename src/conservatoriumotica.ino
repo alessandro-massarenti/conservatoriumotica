@@ -18,7 +18,7 @@
       * to be done
     list:
       + air-humidity;
-      * soil-humidity;
+      + soil-humidity;
       + air-temperature;
       * tank-level
       * water-temperature in the tank
